@@ -1,0 +1,38 @@
+import whisper
+import moviepy
+import os
+import textwrap
+from moviepy.editor import *
+
+def create_and_open_text(text, filename, width=80):
+    wrapped_text = textwrap.fill(text, width=width)  # Wrap text into lines of `width` characters.
+    with open(filename, "w") as file:
+        file.write(wrapped_text)
+    os.startfile(filename)
+
+# Ensure the directory exists
+output_directory = "" # Change filepath of mp4 file file location
+os.makedirs(output_directory, exist_ok=True)
+
+# Specify the path to the new video file
+filename = os.path.join(output_directory, '') # Change to name of mp4 file
+
+# Load the video
+video = VideoFileClip(filename)
+
+# Extract the audio
+audio = video.audio
+
+# Save the audio to a desired format (e.g., mp3)
+audio_path = filename.replace(".mp4", ".mp3")
+audio.write_audiofile(audio_path)
+
+# Load the model and transcribe the audio
+model = whisper.load_model("base")
+result = model.transcribe(audio_path)
+print(result["text"])
+
+# Save the transcribed text to output.txt inside the desired directory
+output_path = os.path.join(output_directory, 'output.txt')
+create_and_open_text(result["text"], output_path)
+
